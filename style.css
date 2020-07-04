@@ -1,0 +1,43 @@
+/* header and main section margins */
+.header {
+    margin: 10px 0px 10px 0px;
+}
+
+.main {
+    margin-top: 50px;
+}
+
+/* link and button color and styling */
+.page-links{
+    color: indigo;
+}
+.page-buttons {
+    background-color: indigo;
+    border-color: indigo;
+    margin-top: 5px;
+}
+
+/* alignment and margins for question field, sub heading, and answer field */
+#question-field,
+#answer-field {
+    float: none;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#sub-heading{
+    font-size: 20px;
+    margin: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 60%;
+}
+
+#answer-field {
+    display: none;
+    padding-top: 20px;
+    margin: auto;
+    width: 60%;
+}
+
+
