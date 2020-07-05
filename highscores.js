@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
     
     if(scoresArray != []){ // if scoresArray is not empty array
         //populate highscores
-        console.log("populating high scores");
         for(var i =0; i<scoresArray.length; i++){ // for each score entry, create a three column row with rank, initials, and score
             var tableRow = document.createElement("tr");
             var tableCol1 = document.createElement("th"); // rank col

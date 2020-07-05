@@ -50,8 +50,6 @@ var quiz = {
                 return; //return function
             }
             this.timeLeft--;//decrement time by 1 each second
-            console.log(this.timeLeft);
-            console.log(this.quizStopped);
             timeRemaining.textContent = this.timeLeft;
             //feedback.style.display = "none";
             if (this.timeLeft < 1) {
@@ -129,11 +127,15 @@ var quiz = {
         newDiv.appendChild(submit);
         subHeadding.appendChild(newDiv);
 
+        newInput.onkeydown = function(e){
+            if(e.keyCode == 13){
+              submit.click();
+            }
+         };
         submit.addEventListener("click", function (event) {
             var initials = newInput.value.trim();
             if (initials.trim() != "") {
                 localStorage.setItem("newScore", JSON.stringify([initials, finalScore]));
-                console.log(JSON.parse(localStorage.getItem("newScore")));
                 document.location.href = "highscores.html";
             }
         });
