@@ -9,70 +9,140 @@ var btn3 = document.getElementById("btn-3");
 var btn4 = document.getElementById("btn-4");
 
 var answerField = document.getElementById("answer-field");
-
-var numQuestions = 4;
-var timeLeft = 0;
+var feedback = document.getElementById("feedback");
+var feedbackText = document.getElementById("feedback-text");
 
 var quiz = {
-    questions: ["Question 1", "Question2", "Question 3", "Question 4", "Question 5"],
-    answers: {
-        text: [["Answer 1", "Answer 2", "Answer 3", "Answer 4"], ["Answer 1", "Answer 2", "Answer 3", "Answer 4"], ["Answer 1", "Answer 2", "Answer 3", "Answer 4"], ["Answer 1", "Answer 2", "Answer 3", "Answer 4"]],
-        correct: [0, 1, 2, 3, 0]
-    },
-    usedQuestions: [],
+    questions: [ // questions structure: question, 4 answer choices, correct answer array index
+        //questions from https://www.w3schools.com/quiztest/quiztest.asp?qtest=JS
+        {
+            question: "JavaScript is added to an HTML page with what HTML element?",
+            choices: ["<scripting>", "<script>", "<js>", "<javascript>"],
+            correct: 1
+        },
+        {
+            question: "Which of these JavaScript snippets will return \"53\"?",
+            choices: ["alert(\"53\")", "\"5\" + 3", "5.concat(\"3\")", "\"5\" - 3"],
+            correct: 1
+        },
+        {
+            question: "Which of these is a JavaScript array?",
+            choices: ["var colors = [\"red\", \"green\", \"blue\"]", "var colors = \"red\", \"green\", \"blue\"", "var colors = (1:\"red\", 2:\"green\", 3:\"blue\")", "var colors = 1 = (\"red\"), 2 = (\"green\"), 3 = (\"blue\")]"],
+            correct: 0
+        },
+        {
+            question: "Which of these JavaScript snippets will return true?",
+            choices: ["true === 1", "true - true === 1", "1 < 2 < 3", "3 > 2 > 1"],
+            correct: 2
+        }
+    ],
     index: 0,
     correctAnswerText: "",
-    runQuizTimer: function() { 
-        timeLeft = 60;
-        var timerInterval = setInterval(function(){
-            timeLeft--;//decrement time by 1 each second
-            timeRemaining.textContent = timeLeft;
-        }, 1000);
+    timeLeft: 0,
+    quizStopped: false,
+
+    runQuizTimer: function () {
+        this.timeLeft = 75;
+        this.quizStopped = false;
+        var timerInterval = setInterval(function () {
+            if (this.quizStopped) {// if quiz stopped due to user reaching the end of questions
+                clearInterval(timerInterval);//clear the timer interval
+                return; //return function
+            }
+            this.timeLeft--;//decrement time by 1 each second
+            console.log(this.timeLeft);
+            console.log(this.quizStopped);
+            timeRemaining.textContent = this.timeLeft;
+            //feedback.style.display = "none";
+            if (this.timeLeft < 1) {
+                //times up! quiz is over. navigate to high scores page
+                clearInterval(timerInterval);
+                window.location.href = "highscores.html";
+            }
+        }.bind(this), 1000); //1000ms interval
+        //.bind(this) provides the 'quiz' object context to this anonymous function inside one of 'quiz's methods
     },
-    getQuestionIndex: function () {
-        // if all questions have been used, reset used questions array
-        if (this.usedQuestions.length === this.questions.length) {
-            this.usedQuestions = [];
-        }
-        while (true) {
-            //find a random index in the question array, and if it hasn't been used yet, return that index
-            var randomQuestionIndex = Math.floor(Math.random() * this.questions.length);
-            if (!this.usedQuestions.includes(randomQuestionIndex)) {
-                return (randomQuestionIndex);
-            }// else loop again
-        }
-    },
+
     populateQuestion: function () {
-        this.index = this.getQuestionIndex(); //set objects index to currently displayed question
+        //this.index = this.getQuestionIndex(); //set objects index to currently displayed question
         if (this.index < this.questions.length) {// if random index is within question array bounds
-            questionText.textContent = this.questions[this.index];
-            var answersArray = this.answers.text[this.index];
-            btn1.textContent = "1. " + answersArray[0];
-            btn2.textContent = "2. " + answersArray[1];
-            btn3.textContent = "3. " + answersArray[2];
-            btn4.textContent = "4. " + answersArray[3];
-            this.correctAnswerText = this.answers.text[this.index][this.answers.correct[this.index]];
+            var currQuestion = this.questions[this.index];
+            questionText.textContent = currQuestion.question;
+            btn1.textContent = currQuestion.choices[0];
+            btn2.textContent = currQuestion.choices[1];
+            btn3.textContent = currQuestion.choices[2];
+            btn4.textContent = currQuestion.choices[3];
+            //store the text of the correct answer for comparison
+            //
+            this.correctAnswerText = currQuestion.choices[currQuestion.correct];
+            this.index++;//increment question index for next question
+        }
+
+    },
+
+    determineAnswer: function (event) { // determine if user input was correct
+        if (event.target.nodeName === "BUTTON") {// if click target was a button
+            //find text of user answer, cut off the prepended "#. "
+            var userAnswerText = event.target.innerText.toString();
+            if (userAnswerText === this.correctAnswerText) { // text matches correct answer
+                //display correct
+                feedback.style.display = "block";
+                feedbackText.textContent = "Correct!";
+            } else { //else - wrong
+                //display wrong
+                feedback.style.display = "block";
+                feedbackText.textContent = "Wrong!";
+                this.timeLeft -= 10;
+            }
+            if (this.index > this.questions.length - 1) {//if quiz over, show highscores
+                this.quizStopped = true;
+                this.newHighscore();
+            } else {
+                this.populateQuestion();
+            }
         }
     },
-    determineAnswer: function (event) { // determine if user input was correct
-        // console.log("Correct: "+ correctAnswerText);
-        var userAnswerText = event.target.innerText.toString().substr(3);
-        // console.log("User: " + userAnswerText);
-        if (userAnswerText === correctAnswerText) {
-            console.log("Correct");
-        } else {
-            console.log("Not Correct");
-        }
+
+    newHighscore: function () {
+        //all done
+        //your final score is xx
+        //enter your initials - form box - submit
+        questionText.textContent = "Quiz Complete!";
+        var finalScore = this.timeLeft;
+        subHeadding.textContent = "Your final score was: " + finalScore;
+        subHeadding.style.display = "block";
+        answerField.style.display = "none";
+        feedback.style.display = "none";
+
+        var newDiv = document.createElement("div");
+        newDiv.innerHTML = "Please enter your initials: ";
+
+        var newInput = document.createElement("input");
+        newInput.type = "Initials";
+        newInput.classList = "form-control";
+        newInput.id = "initials-form";
+
+        var submit = document.createElement("button");
+        submit.classList = "btn page-buttons";
+        submit.textContent = "Submit";
+        newDiv.appendChild(newInput);
+        newDiv.appendChild(submit);
+        subHeadding.appendChild(newDiv);
+
+        submit.addEventListener("click", function (event) {
+            var initials = newInput.value.trim();
+            if (initials.trim() != "") {
+                localStorage.setItem("newScore", JSON.stringify([initials, finalScore]));
+                console.log(JSON.parse(localStorage.getItem("newScore")));
+                document.location.href = "highscores.html";
+            }
+        });
     }
 };
 
-$
-
-
-
-
 document.addEventListener("DOMContentLoaded", function (event) {
-
+    questionText.textContent = "Coding Quiz Challenge";
+    subHeadding.innerHTML = "Try to answer the following code-related question within the time limit. Keep in mind that incorrect answers will penalize your score/time by ten seconds!";
     //wait for 'Start Quiz' button press, then begin quiz
     btnStartQuiz.addEventListener("click", function (event) {
         event.preventDefault();
@@ -84,14 +154,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
         quiz.populateQuestion();
         //start timer
         quiz.runQuizTimer();
+
     });
 
     answerField.addEventListener("click", function (event) {
-        console.log("Answer Recived");
         quiz.determineAnswer(event);
     });
-
-
 
 });
 
