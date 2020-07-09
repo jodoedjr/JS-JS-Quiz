@@ -14,32 +14,32 @@ var feedbackText = document.getElementById("feedback-text");
 
 var quiz = {
     questions: [ // questions structure: question, 4 answer choices, correct answer array index
-        //questions from https://www.w3schools.com/quiztest/quiztest.asp?qtest=JS
+        //some questions from https://www.w3schools.com/quiztest/quiztest.asp?qtest=JS
         {
             question: "JavaScript is added to an HTML page with what HTML element?",
             choices: ["<scripting>", "<script>", "<js>", "<javascript>"],
-            correct: 1
+            correct: 1 // B
         },
         {
             question: "Which of these JavaScript snippets will return \"53\"?",
             choices: ["alert(\"53\")", "\"5\" + 3", "5.concat(\"3\")", "\"5\" - 3"],
-            correct: 1
+            correct: 1 // B
         },
         {
             question: "Which of these is a JavaScript array?",
             choices: ["var colors = [\"red\", \"green\", \"blue\"]", "var colors = \"red\", \"green\", \"blue\"", "var colors = (1:\"red\", 2:\"green\", 3:\"blue\")", "var colors = 1 = (\"red\"), 2 = (\"green\"), 3 = (\"blue\")]"],
-            correct: 0
+            correct: 0 // A
         },
         {
             question: "Which of these JavaScript snippets will return true?",
             choices: ["true === 1", "true - true === 1", "1 < 2 < 3", "3 > 2 > 1"],
-            correct: 2
+            correct: 2 // C
         }
     ],
-    index: 0,
+    index: 0, // index of current question
     correctAnswerText: "",
-    timeLeft: 0,
-    quizStopped: false,
+    timeLeft: 0, //user score
+    quizStopped: false, //used to stop interval when all questions have been answered
 
     runQuizTimer: function () {
         this.timeLeft = 75;
@@ -58,12 +58,11 @@ var quiz = {
                 window.location.href = "highscores.html";
             }
         }.bind(this), 1000); //1000ms interval
-        //.bind(this) provides the 'quiz' object context to this anonymous function inside one of 'quiz's methods
+        //.bind(this) provides the 'quiz' object context to this anonymous function inside the runQuizTimer method
     },
 
     populateQuestion: function () {
-        //this.index = this.getQuestionIndex(); //set objects index to currently displayed question
-        if (this.index < this.questions.length) {// if random index is within question array bounds
+        if (this.index < this.questions.length) {// if index is within question array bounds
             var currQuestion = this.questions[this.index];
             questionText.textContent = currQuestion.question;
             btn1.textContent = currQuestion.choices[0];
@@ -80,7 +79,6 @@ var quiz = {
 
     determineAnswer: function (event) { // determine if user input was correct
         if (event.target.nodeName === "BUTTON") {// if click target was a button
-            //find text of user answer, cut off the prepended "#. "
             var userAnswerText = event.target.innerText.toString();
             if (userAnswerText === this.correctAnswerText) { // text matches correct answer
                 //display correct
@@ -92,6 +90,7 @@ var quiz = {
                 feedbackText.textContent = "Wrong!";
                 this.timeLeft -= 10;
             }
+            setTimeout(function(){ feedback.style.display = "none"; }, 1000); // hides the feedback after 1 second
             if (this.index > this.questions.length - 1) {//if quiz over, show highscores
                 this.quizStopped = true;
                 this.newHighscore();
@@ -123,12 +122,14 @@ var quiz = {
         var submit = document.createElement("button");
         submit.classList = "btn page-buttons";
         submit.textContent = "Submit";
+
+        //append created elements to subheading
         newDiv.appendChild(newInput);
         newDiv.appendChild(submit);
         subHeadding.appendChild(newDiv);
 
         newInput.onkeydown = function(e){
-            if(e.keyCode == 13){
+            if(e.keyCode == 13){ // if user presses enter at the end of their initials, treat that as clicking the submit button
               submit.click();
             }
          };
@@ -156,7 +157,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
         quiz.populateQuestion();
         //start timer
         quiz.runQuizTimer();
-
     });
 
     answerField.addEventListener("click", function (event) {
